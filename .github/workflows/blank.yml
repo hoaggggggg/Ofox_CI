@@ -1,0 +1,53 @@
+name: OrangeFox Build
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+      - name: Checking Runner
+        run: df -h
+    
+      - name: Prepare the build environment
+        run: curl -sL https://raw.githubusercontent.com/hoaggggggg/Ofox_CI/main/script/setup.sh | bash
+  
+      - name: Sync OrangeFox sources and minimal manifest
+        run: curl -sL https://raw.githubusercontent.com/hoaggggggg/Ofox_CI/main/script/sync.sh | bash
+
+      - name: Clone device trees and kernel
+        run: curl -sL https://raw.githubusercontent.com/hoaggggggg/Ofox_CI/main/script/clone_tree.sh | bash
+
+      - name: Build Recovery
+        run: curl -sL https://raw.githubusercontent.com/hoaggggggg/Ofox_CI/main/script/build.sh | bash
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+           files: |
+             ~/fox_12.1/out/target/product/p3s/OrangeFox*.img
+             ~/fox_12.1/out/target/product/p3s/OrangeFox*.zip
+           name: OrangeFox Recovery Samsung S21 Ultra - p3sxxx
+           tag_name: canary_build
+           body: |
+             Device: Samsung Galaxy S21 Ultra
+             Recovery: Orangefox 12.1
+             Device code: p3sxxx
+             Image File MD5: * ${{ env.MD5_IMG }}
+             Zip File MD5: * ${{ env.MD5_ZIP }}
+           
