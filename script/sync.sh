@@ -1,4 +1,4 @@
-#!/bin/bash#!/bin/bash
+#!/bin/bash
 
 git config --global user.name "your username"
 git config --global user.email yourmail@example.com
